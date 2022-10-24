@@ -17,7 +17,9 @@ router.post('/', (req, res) => {
     if (!urlResult) {
       const urlCode = generateURL(5)
       Url.create({ url: inputUrl.url, newUrl: urlCode })
-      return res.render('index', { url: inputUrl.url , newUrl:`https://localhost:${PORT}/${urlCode}`})
+      .then(() =>{
+        return res.render('index', { url: inputUrl.url , newUrl:`https://localhost:${PORT}/${urlCode}`})
+      })
     } else {
       return res.render('index', { url: urlResult.url, newUrl: `https://localhost:${PORT}/${urlResult.newUrl}` })
     }
