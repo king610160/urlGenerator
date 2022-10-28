@@ -3,6 +3,7 @@ const router = express.Router()
 const Url = require('../models/url')
 const generateURL = require('../utility/generateURL')
 const PORT = 3000
+const axios = require('axios')
 
 
 router.get('/', (req, res) => {
@@ -11,20 +12,28 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   const inputUrl = req.body
-  Url.findOne(inputUrl)
-  .lean()
-  .then(urlResult =>{
-    if (!urlResult) {
-      const urlCode = generateURL(5)
-      Url.create({ url: inputUrl.url, newUrl: urlCode })
-      .then(() =>{
-        return res.render('index', { url: inputUrl.url , newUrl:`https://localhost:${PORT}/${urlCode}`})
-      })
-    } else {
-      return res.render('index', { url: urlResult.url, newUrl: `https://localhost:${PORT}/${urlResult.newUrl}` })
-    }
-  })
-  .catch(error => console.error(error))
+  // console.log(inputUrl.url)
+  axios
+    .get(inputUrl.url)
+    .then(() => {
+      Url.findOne(inputUrl)
+        .lean()
+        .then(urlResult => {
+          if (!urlResult) {
+            const urlCode = generateURL(5)
+            Url.create({ url: inputUrl.url, newUrl: urlCode })
+              .then(() => {
+                return res.render('index', { url: inputUrl.url, newUrl: `https://localhost:${PORT}/${urlCode}` })
+              })
+          } else {
+            return res.render('index', { url: urlResult.url, newUrl: `https://localhost:${PORT}/${urlResult.newUrl}` })
+          }
+        })
+        .catch(error => console.error(error))
+    })
+    .catch(() => {
+      return res.render('error', { url: inputUrl.url} )
+    })
 })
 
 router.get('/:urlId', (req, res) => {
