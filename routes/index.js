@@ -12,7 +12,6 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   const inputUrl = req.body
-  // console.log(inputUrl.url)
   axios
     .get(inputUrl.url)
     .then(() => {
